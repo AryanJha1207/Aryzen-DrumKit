@@ -1,66 +1,106 @@
 let numberOfButtons = document.querySelectorAll(".drum").length;
 
+// Add click event listeners
 for (let i = 0; i < numberOfButtons; i++) {
   document.querySelectorAll(".drum")[i].addEventListener("click", function () {
-    //play sound
-    let buttonInnerHtml = this.innerHTML;
-
-    playSound(buttonInnerHtml);
-    //button animation
-
-    buttonAnimation(buttonInnerHtml);
+    let key = this.classList[1];
+    playSound(key);
+    buttonAnimation(key);
+    activateVisualizer();
   });
 }
 
+// Add keyboard event listener
 document.addEventListener("keypress", function (event) {
-  //play sound
-  playSound(event.key);
-
-  //button animation
-  buttonAnimation(event.key);
+  let key = event.key.toLowerCase();
+  
+  if (['w', 'a', 's', 'd', 'j', 'k', 'l'].includes(key)) {
+    playSound(key);
+    buttonAnimation(key);
+    activateVisualizer();
+  }
 });
 
+// Sound function
 function playSound(key) {
-  switch (key) {
-    case "w": //audio play
-      let tom1 = new Audio("./sounds/tom-1.mp3");
-      tom1.play();
-      break;
-    case "a": //audio play
-      let tom2 = new Audio("./sounds/tom-2.mp3");
-      tom2.play();
-      break;
-    case "s": //audio play
-      let tom3 = new Audio("sounds/tom-3.mp3");
-      tom3.play();
-      break;
-    case "d": //audio play
-      let tom4 = new Audio("sounds/tom-4.mp3");
-      tom4.play();
-      break;
-    case "j": //audio play
-      let snare = new Audio("sounds/snare.mp3");
-      snare.play();
-      break;
-    case "k": //audio play
-      let crash = new Audio("sounds/crash.mp3");
-      crash.play();
-      break;
-    case "l": //audio play
-      let kick = new Audio("sounds/kick-bass.mp3");
-      kick.play();
-      break;
-    default:
-      console.log(key);
+  try {
+    let audio;
+    switch (key) {
+      case "w":
+        audio = new Audio("./sounds/tom-1.mp3");
+        break;
+      case "a":
+        audio = new Audio("./sounds/tom-2.mp3");
+        break;
+      case "s":
+        audio = new Audio("./sounds/tom-3.mp3");
+        break;
+      case "d":
+        audio = new Audio("./sounds/tom-4.mp3");
+        break;
+      case "j":
+        audio = new Audio("./sounds/snare.mp3");
+        break;
+      case "k":
+        audio = new Audio("./sounds/crash.mp3");
+        break;
+      case "l":
+        audio = new Audio("./sounds/kick-bass.mp3");
+        break;
+      default:
+        return;
+    }
+    
+    audio.currentTime = 0;
+    audio.play().catch(error => {
+      console.log("Audio play failed:", error);
+    });
+    
+  } catch (error) {
+    console.log("Error playing sound:", error);
   }
 }
 
+// Button animation
 function buttonAnimation(currentKey) {
   let activeButton = document.querySelector("." + currentKey);
-
-  activeButton.classList.add("pressed");
-
-  setTimeout(function () {
+  
+  if (activeButton) {
     activeButton.classList.remove("pressed");
-  }, 100);
+    void activeButton.offsetWidth;
+    activeButton.classList.add("pressed");
+    
+    setTimeout(function () {
+      activeButton.classList.remove("pressed");
+    }, 150);
+  }
 }
+
+// Sound Reactive Visualizer
+function activateVisualizer() {
+  const bars = document.querySelectorAll('.bar');
+  bars.forEach(bar => {
+    // Reset to small height
+    bar.style.height = '10px';
+    
+    // Create random height for each bar
+    const randomHeight = Math.floor(Math.random() * 40) + 15;
+    
+    // Animate to random height
+    bar.style.transition = 'height 0.1s ease-out';
+    bar.style.height = randomHeight + 'px';
+    
+    // Return to small height after delay
+    setTimeout(() => {
+      bar.style.height = '10px';
+    }, 120);
+  });
+}
+
+// Initialize visualizer with small bars
+document.addEventListener('DOMContentLoaded', function() {
+  const bars = document.querySelectorAll('.bar');
+  bars.forEach(bar => {
+    bar.style.height = '10px';
+  });
+});
